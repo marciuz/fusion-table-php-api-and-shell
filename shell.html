@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+	<script src="./jquery.hotkeys.js"></script>
+	<script type="text/javascript">
+	    
+	    sqlhistory=new Array();
+	    kk=0;
+	    
+	    $(document).ready( function(){
+	    
+		
+		
+		$('#history_content').on('click', 'div.history_sql', function(){
+		    $('#shell_sql').val($(this).html());
+		});
+	    
+	 
+		$( "#results" ).tabs();
+
+		refresh_history();
+		
+		$('#shell').on('keydown','#shell_sql', function(event){
+		    
+		    if(event.which==13){
+			event.preventDefault();
+			send_sql();
+		    }
+		    else if(event.which==38 || event.keyCode==38){
+			
+			event.preventDefault();
+			if(typeof(sqlhistory[sqlhistory.length - 1 - (kk+1)])!='undefined'){
+			    kk++;
+			    $('#shell_sql').val(sqlhistory[sqlhistory.length - 1 - kk]);
+			}
+		    }
+		    else if(event.which==40 || event.keyCode==40){
+
+			event.preventDefault();
+			if(typeof(sqlhistory[sqlhistory.length - 1 - (kk-1)])!='undefined'){
+			    kk--;
+			    $('#shell_sql').val(sqlhistory[sqlhistory.length - 1 - kk]);
+			}
+		    }
+		
+		});
+	    
+		$('#save_cookie').click(function(){
+		    
+		    var data='';
+		    data+='email='+$('#gemail').val();
+		    data+='&password='+$('#gpassword').val();
+		    data+='&api_key='+$('#gapi_key').val();
+		   
+		   $.ajax({
+		       url:'rpc.save_auth.php',
+		       type:'post',
+		       data: data,
+		       success: function(){
+			   alert('Saved!');
+		       }
+		   });
+		});
+		
+		$('#get_cookie').click(function(){
+		   
+		   $.ajax({
+		       url:'rpc.save_auth.php?get=1',
+		       type:'get',
+		       dataType:'json',
+		       success: function(res){
+			   $('#gemail').val(res.email);
+			   $('#gpassword').val(res.password);
+			   $('#gapi_key').val(res.api_key);
+		       }
+		   });
+		});
+		
+		$('#remove_cookie').click(function(){
+		   
+		   $.ajax({
+		       url:'rpc.save_auth.php',
+		       type:'post',
+		       data:'remove_cookie=1',
+		       success: function(res){
+			   if(res==1){
+			       alert('data removed!');
+			   }
+		       }
+		   });
+		});
+	    
+	    
+	    });
+	    
+	    function refresh_history(){
+		$.ajax({
+		    url:'./rpc.history.php',
+		    dataType: 'json',
+		    success: function(res){
+			
+			html_res='';
+			
+			for(var i=0;i<res.length;i++){
+			    html_res+="<div class=\"history_sql\">"+res[i]+"</div>";
+			}
+			//$('#history_content').html(html_res);
+			sqlhistory=res;
+			
+		    }
+		});
+	    }
+	    
+	    function send_sql(){
+
+		$('#results-1').html('Waiting...');
+		$('#results-2').html('Waiting...');
+		$('#results-3').html('Waiting...');
+
+		mydata='';
+		mydata+='google_email='+$('#gemail').val();
+		mydata+='&google_password='+$('#gpassword').val();
+		mydata+='&google_api_key='+$('#gapi_key').val();
+		mydata+='&debug_auth='+$('#debug_auth:checked').val();
+		mydata+='&sql='+$('#shell_sql').val();
+
+		$.ajax({
+		    url: './rpc.shell.php',
+		    type: 'post',
+		    data: mydata,
+		    dataType: 'json',
+		    success: function(res){
+			$('#results-1').html(res.summary);
+			$('#results-2').html(res.results);
+			$('#results-3').html(res.raw_code);
+			refresh_history();
+		    },
+		    error: function(err){
+			alert(err);
+		    }
+	    });
+	    }
+	    
+	    
+	</script>
+	<style type="text/css">
+	    
+	    body{
+		font-family: 'Lucida sans',arial,sans;
+		font-size: 0.9em;
+	    }
+	    
+	    #results{
+		clear: left;
+		font-family:monospace;
+		border: 1px solid #CCC;
+		/*background-color: #EEE;*/
+		min-height: 50px;
+		padding: 1em;
+		
+	    }
+	    
+	    #shell{
+		padding: 1em 0;
+		float: left;
+		
+	    }
+	    
+	    #shell_sql{
+		font-family: "source-code-pro",Consolas,monospace;
+		padding: 1em;
+		background-color: #111;
+		color: chartreuse;
+		font-size: 16px;
+	    }
+	    
+	    #hist{
+		float: left;
+		padding-left: 2em;
+	    }
+	    
+	    .history_sql{
+		font-size: 0.7em;
+		text-decoration: underline;
+		cursor: pointer;
+		color: #555;
+		line-height: 1.5em;
+	    }
+	    
+	    #tab_results{
+		border: 1px solid #BBB;
+		border-collapse: collapse;
+	    }
+	    
+	    #tab_results tr th,
+	    #tab_results tr td{
+		border: 1px solid #BBB;
+		padding: 2px;
+	    }
+	    
+	    #tab_results tr th{
+		background-color: #BBB;
+		
+	    }
+	    
+	    #tab_results tr td{
+		background-color: #FFF;
+	    }
+	    /*
+	    #results ul li{
+		display: inline;
+		border: 1px solid #999;
+		padding: 2em ;
+		background-color: #FFF;
+	    }
+	    */
+	    #results-1,
+	    #results-2,
+	    #results-3{
+		
+	    }
+	    
+	    code{
+		color: #330000;
+		background-color: #EEE;
+	    }
+	    
+	    
+	</style>
+    </head>
+    <body>
+	<h1>Fusion Tables SQL shell</h1>
+	<div id="login">
+	    <input size="28" placeholder="google email" type="text" name="google_email" id="gemail" value="" />
+	    <input size="20" placeholder="google password" type="password" name="google_password" id="gpassword" value="" />
+	    <input size="50" placeholder="api key" type="text" name="google_api_key" id="gapi_key" value="" />
+	    <input type="checkbox" name="debug_auth" id="debug_auth" value="1" />
+	    <label for="debug_auth">Debug auth</label>
+	    <span id="buttons">
+		<input type="button" name="save_cookie" id="save_cookie" value="Save auth" />
+		<input type="button" name="get_cookie" id="get_cookie" value="Get saved auth data" />
+		<input type="button" name="remove_cookie" id="remove_cookie" value="Delete auth" />
+	    </span>
+	</div>
+	
+	<div id="shell">
+	    <textarea cols="90" rows="8" id="shell_sql"></textarea>
+	</div>
+	
+	<div id="hist">
+	    <h3>History</h3>
+	    <div id="history_content"></div>
+	</div>
+	
+	
+	<div id="results">
+	     <ul>
+		<li><a href="#results-1">Summary</a></li>
+		<li><a href="#results-2">Results</a></li>
+		<li><a href="#results-3">Raw output</a></li>
+		<li><a href="#help">Help</a></li>
+		<li><a href="#syntax">SQL Syntax</a></li>
+	    </ul>
+	    <div id="results-1"></div>
+	    <div id="results-2"></div>
+	    <div id="results-3"></div>
+	    <div id="help">
+		
+		<p>This shell allow most of importants SQL standard commands.
+		   Some commands are provider from Fusion Tables (SHOW, DESCRIBE, 
+		   SELECT, INSERT, UPDATE, DELETE, ...)
+		   others via wrapper (DROP, CREATE, COPY).
+		</p>
+		
+	    </div>
+	    <div id="syntax">
+		
+		<p><strong>SHOW TABLES </strong>[core FT]<br />
+		    show a list of availables tables (names and encid).</p>
+		
+		<p><strong>DESCRIBE &lt;encid&gt;</strong> [core FT]<br />
+		    show the colums from table &lt;encid&gt;
+		</p>
+		
+		<p><strong>SELECT</strong> [core FT]<br />
+		    the SELECT sql function,
+		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Select" target="_blank">see Google Fusion Tables documentation</a>
+		    .
+		</p>
+		
+		<p><strong>INSERT</strong> [core FT]<br />
+		    the INSERT sql function,
+		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Insert" target="_blank">see Google Fusion Tables documentation</a>
+		    .
+		</p>
+		
+		
+		<p><strong>UPDATE</strong> [core FT, +wrapper]<br />
+		    the UPDATE sql function,
+		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Update" target="_blank">see Google Fusion Tables documentation</a>.
+		    <br />
+		    Normally, the FT UPDATE need a ROWID to be execute
+		    and the execution is in two step: first you need to perform a select query
+		    with the parameter you need and the ROWID,
+		    second you can update the record identified by the ROWID(s).
+		    <strong>This shell perform the first step for you:</strong>
+			you can use UPDATE like the normal SQL command
+			and something like <br />
+			<code>UPDATE &lt;encid&gt; SET income='1000' WHERE income='900'</code><br />
+			is possible
+			without the ROWID.
+		    <br />
+		    In any case, if you use the ROWID directly in your SQL, 
+		    the shell dosn't perform the fist query (for better performance).
+		</p>
+		
+		<p><strong>DELETE</strong> [core FT, +wrapper]<br />
+		    the DELETE sql function,
+		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Delete" target="_blank">see Google Fusion Tables documentation</a>.
+		    <br />
+		    Like the Update command
+		    <strong>the shell perform the first step for you:</strong>
+			you can write directly something like <br />
+			<code>DELETE FROM &lt;encid&gt; WHERE name='John Doe'</code>
+		    <br />
+		    In any case, if you use the ROWID directly in your SQL, 
+		    the shell dosn't perform the fist query (for better performance).
+		</p>
+		
+		<p><strong>DROP</strong> [wrapper]<br /></p>
+		
+		
+		<p><strong>CREATE VIEW</strong> [core FT]<br /></p>
+		
+		<p><strong>CREATE TABLE</strong> [wrapper]<br /></p>
+		
+		
+		<p><strong>COPY</strong> [wrapper]<br /></p>
+		
+		
+	    </div>
+	</div>
+    </body>
+</html>
