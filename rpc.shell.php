@@ -89,12 +89,16 @@ else{
 // exec the query
 $q=$FT->query($_POST['sql']);
 
+
+
+
 if(isset($FT->error)){
     
     $last_error=$FT->error[(count($FT->error)-1)];
     
     $Results->summary="<p class=\"error\"><strong>Error (".$last_error->code.")</strong> ".$last_error->message."</p>\n";
 }
+
 else if(preg_match('/ *SELECT +/i',$_POST['sql'])){
     
     //echo "<pre>Query output: ".print_r($q,true)."</pre>";
@@ -128,6 +132,22 @@ else if(preg_match('/ *DROP +TABLE */si',$_POST['sql'])){
 	$Results->summary.= "<p class=\"var1\">tableId: ".$FT->raw_out->tableId."</p>\n";
 	$FT->raw_out=json_encode($FT->raw_out);
     }
+}
+else if(preg_match('/ *FIND +/i',$_POST['sql'], $ff)){
+    
+    if($FT->raw_out==-1){
+	$Results->summary.= "<p class=\"var1\">Table(s) not found.</p>\n";
+    }
+    else if(is_string($FT->raw_out) && $FT->raw_out!=''){
+	$Results->summary.= "<p class=\"var1\">Table encid: ".$FT->raw_out."</p>\n";
+    }
+    else if(is_array($FT->raw_out) && count($FT->raw_out)>0){
+	$Results->summary.= "<p class=\"var1\">Table encid(s): ".implode(" , ",$FT->raw_out)."</p>\n";
+    }
+    else{
+	$Results->summary.= "<p class=\"var1\">Table(s) not found.</p>\n";
+    }
+    
 }
 else{
     

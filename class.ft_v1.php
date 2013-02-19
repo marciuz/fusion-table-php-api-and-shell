@@ -574,6 +574,36 @@ class FTv1 {
 	return $this->get("tables/$encid/columns");
     }
     
+    /**
+     * Find the encid from table name
+     * 
+     * @param string $name
+     * @param bool $once Find only the first one
+     * @return string
+     */
+    public function find_table($name, $once=true){
+	
+	if($once)
+	    $res=-1;
+	else
+	    $res=array();
+	
+	$this->__query("SHOW TABLES");
+	
+	$obj=$this->__json_decode($this->raw_out);
+	
+	foreach($obj->rows as $row){
+	    
+	    if($row[1]==$name){
+		
+		if($once) return $row[0];
+		else $res[]=$row[0];
+	    }
+	}
+	
+	return $res;
+    }
+    
     public function get_columnId_from_columnName($encid,$name=''){
 	
 	$cols=$this->list_columns($encid);
@@ -636,6 +666,8 @@ class FTv1 {
     }
     
     
+    
+    
     /**
      * Query wrapper
      * if SELECT or INSERT return the normal FT results
@@ -656,6 +688,17 @@ class FTv1 {
 	// CASE SELECT: EXEC THE NORMAL QUERY
 	if(preg_match("|^ *SELECT |i",$sql)){
 	    
+	    if(preg_match("/%([^%]+)%/", $sql, $ff)){
+		
+		$encid=$this->find_table($ff[1], true);
+		
+		if(is_string($encid))
+		    $sql=str_replace("%".$ff[1]."%",$encid,$sql);
+		
+		else if(is_array($encid))
+		    $sql=str_replace("%".$ff[1]."%",$encid[0],$sql);
+	    }
+	    
 	    return $this->__query($sql);
 	}
 	
@@ -671,7 +714,7 @@ class FTv1 {
 	// Select the rowid for each record and update by ROWID
 	else if(preg_match("/^ *UPDATE/i",$sql)){
 	    
-	    if(preg_match("/^ *UPDATE *([A-z0-9_-]+) *SET *(.*?)( *\;*$|( +WHERE *(.*);*))/si" ,$sql, $tokens)){
+	    if(preg_match("/^ *UPDATE *([%'A-z0-9_-]+) *SET *(.*?)( *\;*$|( +WHERE *(.*);*))/si" ,$sql, $tokens)){
 		
 		$TABLE=$tokens[1];
 		$SET=$tokens[2];
@@ -821,6 +864,18 @@ class FTv1 {
 	    }
 	    else 
 		$this->raw_out= -1;
+	}
+	
+	// SPECIAL WRAPPER: FIND
+	else if(preg_match("/ *FIND +(TABLE)? *'?(.+)'?/ui", $sql,$ff)){
+	    
+	    if(isset($ff[2])){
+	
+		return $this->raw_out=$this->find_table(trim($ff[2]), false);
+	    }
+	    else{
+		return $this->raw_out=-1;
+	    }
 	}
 	
 	// DEFAULT WRAPPER: SHOW TABLES, DESCRIBE, ETC...
