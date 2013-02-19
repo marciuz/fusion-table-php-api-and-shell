@@ -225,9 +225,15 @@
 		
 	    }
 	    
+	    dt{
+		margin: 1em 0 0 0;
+	    }
+	    
 	    code{
 		color: #330000;
 		background-color: #EEE;
+		display: block;
+		padding: 0.5em;
 	    }
 	    
 	    
@@ -271,6 +277,7 @@
 	    <div id="results-3"></div>
 	    <div id="help">
 		
+		
 		<p>This shell allow most of importants SQL standard commands.
 		   Some commands are provided from Fusion Tables (SHOW, DESCRIBE, 
 		   SELECT, INSERT, UPDATE, DELETE, ...)
@@ -283,71 +290,126 @@
 		</p>
 		
 		<p>This shell is available on <a href="https://github.com/marciuz/fusion-table-php-api-and-shell">github</a>
+		    
+		<h2>Quickstart</h2>
+		
+		<ol>
+		    <li>Go to <a href="https://code.google.com/apis/console/">https://code.google.com/apis/console/</a>
+			, In Services activate the Fusion Tables API and in API Access <br />
+			create a api key (Button "Create new server key..." at the bottom of the page).</li>
+		    
+		    <li>Fill the authentication data.</li>
+		    
+		    <li>Try <code>SHOW TABLES</code>.
+		    It is show something?
+		    See the Results tab and the Summary tab.</li>
+		    
+		    <li>Create a new table:
+			<code>CREATE TABLE 'My first table' (name STRING, age NUMBER)</code>
+			Copy the returned encid from Summary tab.
+		    </li>
+		    
+		    <li>
+			Insert some data 
+			<code>
+			    INSERT INTO &lt;encid&gt; (name, age) VALUES ('John', '34');<br />
+			    INSERT INTO &lt;encid&gt; (name, age) VALUES ('Mary', '25');<br />
+			    INSERT INTO &lt;encid&gt; (name, age) VALUES ('Susan', '31');<br />
+			    INSERT INTO &lt;encid&gt; (name, age) VALUES ('Mike', '55');<br />
+			    INSERT INTO &lt;encid&gt; (name, age) VALUES ('Dora', '67');<br />
+			   
+			</code>
+			   (copy this code and replace &lt;encid&gt; with you table encoded ID,
+			   something like 1XZnk2TpGQioX0eNaCY5OB1jrHqmLtmLsJu_2XNY
+		    </li>
+		</ol>
 		
 	    </div>
 	    <div id="syntax">
 		
-		<p><strong>SHOW TABLES </strong>[core FT]<br />
-		    show a list of availables tables (names and encid).</p>
-		
-		<p><strong>DESCRIBE &lt;encid&gt;</strong> [core FT]<br />
-		    show the colums from table &lt;encid&gt;
-		</p>
-		
-		<p><strong>SELECT</strong> [core FT]<br />
-		    the SELECT sql function,
-		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Select" target="_blank">see Google Fusion Tables documentation</a>
-		    .
-		</p>
-		
-		<p><strong>INSERT</strong> [core FT]<br />
-		    the INSERT sql function,
-		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Insert" target="_blank">see Google Fusion Tables documentation</a>
-		    .
-		</p>
-		
-		
-		<p><strong>UPDATE</strong> [core FT, +wrapper]<br />
-		    the UPDATE sql function,
-		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Update" target="_blank">see Google Fusion Tables documentation</a>.
-		    <br />
-		    Normally, the FT UPDATE need a ROWID to be execute
-		    and the execution is in two step: first you need to perform a select query
-		    with the parameter you need and the ROWID,
-		    second you can update the record identified by the ROWID(s).
-		    <strong>This shell perform the first step for you:</strong>
-			you can use UPDATE like the normal SQL command
-			and something like <br />
-			<code>UPDATE &lt;encid&gt; SET income='1000' WHERE income='900'</code><br />
-			is possible
-			without the ROWID.
-		    <br />
-		    In any case, if you use the ROWID directly in your SQL, 
-		    the shell dosn't perform the fist query (for better performance).
-		</p>
-		
-		<p><strong>DELETE</strong> [core FT, +wrapper]<br />
-		    the DELETE sql function,
-		    <a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Delete" target="_blank">see Google Fusion Tables documentation</a>.
-		    <br />
-		    Like the Update command
-		    <strong>the shell perform the first step for you:</strong>
-			you can write directly something like <br />
-			<code>DELETE FROM &lt;encid&gt; WHERE name='John Doe'</code>
-		    <br />
-		    In any case, if you use the ROWID directly in your SQL, 
-		    the shell dosn't perform the fist query (for better performance).
-		</p>
-		
-		<p><strong>DROP</strong> [wrapper]<br /></p>
-		
-		
-		<p><strong>CREATE VIEW</strong> [core FT]<br /></p>
-		
-		<p><strong>CREATE TABLE</strong> [wrapper]<br /></p>
-		
-		
-		<p><strong>COPY</strong> [wrapper]<br /></p>
+		<dl>
+		    <dt><strong>SHOW TABLES </strong>[core FT]</dt>
+		    <dd>show a list of availables tables (names and encid).</dd>
+
+		    <dt><strong>DESCRIBE &lt;encid&gt;</strong> [core FT]</dt>
+		    <dd>show the colums from table &lt;encid&gt;
+		    </dd>
+
+		    <dt><strong>SELECT</strong> [core FT]</dt>
+		    <dd>the SELECT sql function,
+			<a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Select" target="_blank">see Google Fusion Tables documentation</a>.
+		    </dd>
+
+		    <dt><strong>INSERT</strong> [core FT]</dt>
+		     <dd>the INSERT sql function,
+			<a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Insert" target="_blank">see Google Fusion Tables documentation</a>.
+		    </dd>
+
+
+		    <dt><strong>UPDATE</strong> [core FT, +wrapper]</dt>
+		     <dd>the UPDATE sql function,
+			<a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Update" target="_blank">see Google Fusion Tables documentation</a>.
+			<br />
+			Normally, the FT UPDATE need a ROWID to be execute
+			and the execution is in two step: first you need to perform a select query
+			with the parameter you need and the ROWID,
+			second you can update the record identified by the ROWID(s).
+			<strong>This shell perform the first step for you:</strong>
+			    you can use UPDATE like the normal SQL command
+			    and something like <br />
+			    <code>UPDATE &lt;encid&gt; SET income='1000' WHERE income='900'</code><br />
+			    is possible
+			    without the ROWID.
+			<br />
+			In any case, if you use the ROWID directly in your SQL, 
+			the shell dosn't perform the fist query (for better performance).
+		    </dd>
+
+		    <dt><strong>DELETE</strong> [core FT, +wrapper]</dt>
+		     <dd>the DELETE sql function,
+			<a href="https://developers.google.com/fusiontables/docs/v1/sql-reference#Delete" target="_blank">see Google Fusion Tables documentation</a>.
+			<br />
+			Like the Update command
+			<strong>the shell perform the first step for you:</strong>
+			    you can write directly something like <br />
+			    <code>DELETE FROM &lt;encid&gt; WHERE name='John Doe'</code>
+			<br />
+			In any case, if you use the ROWID directly in your SQL, 
+			the shell dosn't perform the fist query (for better performance).
+		    </dd>
+
+
+
+		    <dt><strong>CREATE VIEW</strong> [core FT]</dt>
+		    <dd></dd>
+
+		    <dt><strong>CREATE TABLE</strong> [wrapper]</dt>
+		    <dd>The "create table" is available in the shell.
+			The syntax is :<br />
+			<code>CREATE TABLE 'your table name' (my_column_name STRING|NUMBER|DATETIME|LOCATION [, other_column STRING|NUMBER|DATETIME|LOCATION, ...] )</code>
+			<br />
+			The function return the encid in the Summary tab.
+			<br />
+			<strong>Note:</strong> This wrapper allow only 
+			text, number and underscore in the column names.
+			This is a wrapper issue, not a FT limitation.
+		    </dd>
+
+
+		    <dt><strong>DROP TABLE</strong> [wrapper]</dt>
+		    <dd>The "drop table" is available in the shell.
+		    Th syntax is
+		    <code>DROP TABLE  &lt;encid&gt;</code>
+		    </dd>
+
+		    <dt><strong>COPY</strong> [wrapper]</dt>
+		    <dd>Syntax:<br />
+		    <code>COPY TABLE  &lt;encid&gt;</code><br />
+		    The COPY command copy a table or a view (both structure and data).
+		    and returns the new &lt;encid&gt;
+
+		    </dd>
+		</dl>
 		
 		
 	    </div>
