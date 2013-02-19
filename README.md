@@ -20,7 +20,7 @@ QUICKSTART:
 - Insert some data like usual... <code>INSERT INTO &lt;encid&gt; (name, age) VALUES ('John', '34')</code>
 - Select the data <code>SELECT * FROM &lt;encid&gt; LIMIT 10 </code>
 - Update the data <code>UPDATE &lt;encid&gt; SET age='35' WHERE name='John' </code>. You don't need to know first the Fusion Tables ROWID in this shell.
-- Delete from your table <code>DELETE FORM &lt;encid&gt; WHERE name='John'</code>
+- Delete from your table <code>DELETE FROM &lt;encid&gt; WHERE name='John'</code>
 - Drop your table: <code>DROP TABLE &lt;encid&gt;</code>
 
 The SQL documentation is already in the shell (tab SQL Reference).
